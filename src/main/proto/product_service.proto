@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+// Creates separate .java files for message and service
+// instead of creating them inside the class defined by
+// java_outer_classname
+option java_multiple_files = true;
+
+// Class that will contain descriptor
+option java_outer_classname = "ProductServiceProto";
+
+// The package where the generated classes will reside
+option java_package = "nl.toefel.productservice";
+
+package productservice;
+
+service Product {
+    rpc CreateOrUpdateReview (ProductReviewRequest) returns (ProductReviewResponse) {}
+}
+
+message ProductReviewRequest {
+    string productId = 1;
+    string reviewerEmail = 2;
+    int32 fiveStarRating = 3;
+    string review = 4;
+}
+
+enum Result {
+    OK = 0;
+    FAILED_BAD_LANGUAGE = 1;
+    FAILED_INVALID_SCORE = 2;
+    FAILED_UNKNOWN = 3;
+}
+
+message ProductReviewResponse {
+    Result status = 1;
+}
