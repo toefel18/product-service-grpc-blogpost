@@ -13,8 +13,27 @@ option java_package = "nl.toefel.productservice";
 
 package productservice;
 
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
 service Product {
-    rpc CreateOrUpdateReview (ProductReviewRequest) returns (ProductReviewResponse) {}
+    rpc CreateOrUpdateReview (ProductReviewRequest) returns (ProductReviewResponse) {
+        option (google.api.http) = {
+            post: "/v1/product/{productId}/reviews"
+            body: "*"
+        };
+    }
+    rpc DeleteReview (DeleteReviewRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/v1/product/{productId}/reviews"
+            body: "*"
+        };
+    }
+}
+
+message DeleteReviewRequest {
+    string productId = 1;
+    string reviewerEmail = 2;
 }
 
 message ProductReviewRequest {

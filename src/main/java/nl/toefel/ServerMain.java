@@ -1,14 +1,15 @@
 package nl.toefel;
 
+import com.google.protobuf.Empty;
+import io.grpc.MethodDescriptor;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
-import nl.toefel.productservice.ProductGrpc;
-import nl.toefel.productservice.ProductReviewRequest;
-import nl.toefel.productservice.ProductReviewResponse;
-import nl.toefel.productservice.Result;
+import nl.toefel.productservice.*;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ServerMain {
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -18,6 +19,14 @@ public class ServerMain {
                 .start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(service::shutdownNow));
+        List<String> methods = service.getServices()
+                .stream()
+                .flatMap(it -> it.getServiceDescriptor().getMethods().stream())
+                .map(MethodDescriptor::getFullMethodName)
+                .collect(Collectors.toList());
+
+        methods.forEach(System.out::println);
+
         System.out.println("Started listening for rpc calls on 53000...");
         service.awaitTermination();
     }
@@ -25,7 +34,7 @@ public class ServerMain {
     static class ProductService extends ProductGrpc.ProductImplBase {
         @Override
         public void createOrUpdateReview(ProductReviewRequest request, StreamObserver<ProductReviewResponse> responseObserver) {
-            System.out.println(request.toString());
+            System.out.println("CREATE REVIEW" + request);
             if (request.getFiveStarRating() < 0 || request.getFiveStarRating() > 5) {
                 responseObserver.onNext(createResponse(Result.FAILED_INVALID_SCORE));
             } else if (request.getReview().contains("F*ck")) {
@@ -33,6 +42,12 @@ public class ServerMain {
             } else {
                 responseObserver.onNext(createResponse(Result.OK));
             }
+            responseObserver.onCompleted();
+        }
+
+        @Override
+        public void deleteReview(DeleteReviewRequest request, StreamObserver<Empty> responseObserver) {
+            System.out.println("DELETE REVIEW " + request);
             responseObserver.onCompleted();
         }
 

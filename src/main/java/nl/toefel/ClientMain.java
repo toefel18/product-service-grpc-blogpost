@@ -10,7 +10,7 @@ import nl.toefel.productservice.ProductReviewResponse;
 public class ClientMain {
     public static void main(String[] args) {
         ManagedChannel channel = ManagedChannelBuilder
-                .forAddress("localhost", 53000)
+                .forAddress("localhost", 51051)
                 .usePlaintext() // disable TLS which is enabled by default and requires certificates
                 .build();
 
